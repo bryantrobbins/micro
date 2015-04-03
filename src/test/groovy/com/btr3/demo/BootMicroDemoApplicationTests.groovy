@@ -1,4 +1,4 @@
-package org.finra.pet.boot.demo
+package com.btr3.demo
 
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -1,4 +1,4 @@
-package org.finra.pet.boot.demo.controllers
+package com.btr3.demo.controllers
 
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestMapping

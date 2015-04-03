@@ -96,3 +96,20 @@ and mapped it to the endpoint "greet", so that I can call it like this:
 curl -u user:ab6a3bfa-6e51-4c4c-a0ff-6ed0787f7faa localhost:8080/greet
 ```
 
+## Added LDAP Security
+
+I walked through yet another tutorial to enable LDAP authentication within Spring Security, found here
+(https://spring.io/guides/gs/authenticating-ldap/). There was a bit more code to write (or copy from an
+example) to override default security configurations. The example is also using an embedded LDAP server,
+which I guess is good for quick testing, but is not that realistic going forward.
+
+With an LDIP file in place with user attributes (including usernames and hashed passwords), I can run
+my greeting command like this now for user Ben:
+
+```
+curl -u ben:benspassword localhost:8080/greet
+```
+
+What I'd like to do next is to stand up a separate LDAP server and authenticate against that. Hopefully
+I can also figure out how to externalize the configuration of that server
+(URL, managerDn, and managerPassword).

@@ -34,10 +34,13 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.springframework.boot:spring-boot-starter-actuator")
+		compile("org.springframework.security:spring-security-ldap")
+    compile("org.springframework:spring-tx")
+		compile("org.apache.directory.server:apacheds-server-jndi:1.5.5")
     compile("org.codehaus.groovy:groovy")
     testCompile("org.springframework.boot:spring-boot-starter-test")
+		testCompile("com.github.trevershick:ldap-test-utils:1.0.1")
 }
-
 
 eclipse {
     classpath {

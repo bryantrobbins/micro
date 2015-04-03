@@ -23,3 +23,26 @@ This is the kind of microservice I'd like to develop:
 * JAR-runnable (embedded servlet containers) and RPM-installable
 * Gradle buildable
 * (Optional) CRUD with Persistence (Optional because Grails is pretty straightforward for this, except for that GORM weirdness)
+
+# Implementation Log (Reverse order)
+
+* Added Actuator support for health/management endpoints
+
+```
+compile("org.springframework.boot:spring-boot-starter-actuator")
+```
+
+* Added Basic Auth security with a dependency:
+
+```
+compile("org.springframework.boot:spring-boot-starter-security")
+```
+
+* Built and ran that sucker like this:
+
+```
+gradle build
+java -jar build/libs/boot-micro-demo-0.0.1-SNAPSHOT.jar
+```
+
+* Generated a Starter Project at http://start.spring.io with Web and JAX-RS

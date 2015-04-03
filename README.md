@@ -26,8 +26,7 @@ This is the kind of microservice I'd like to develop:
 
 # Implementation Log
 
-## Added a JSON ReST service from the Actuator Getting Started guide: https://spring.io/guides/gs/actuator-service/.
-## Generated a Starter Project at http://start.spring.io with Web and JAX-RS
+## Starter Project
 
 I generated a Starter Project at http://start.spring.io with Web and JAX-RS.
 

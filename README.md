@@ -107,9 +107,12 @@ With an LDIP file in place with user attributes (including usernames and hashed 
 my greeting command like this now for user Ben:
 
 ```
-curl -u ben:benspassword localhost:8080/greet
+curl -u ben:benspassword localhost:8080/greet #Uses default value of "Stranger" in greeting
+curl -u ben:benspassword localhost:8080/greet?name=Ben # Uses provided name of "Ben"
 ```
 
 What I'd like to do next is to stand up a separate LDAP server and authenticate against that. Hopefully
 I can also figure out how to externalize the configuration of that server
 (URL, managerDn, and managerPassword).
+
+

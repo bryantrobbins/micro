@@ -195,7 +195,7 @@ I get a message like this in the logs:
 2015-04-04 15:40:36.930  INFO 2286 --- [nio-8080-exec-3] c.btr3.demo.controllers.HelloController  : Replying with a generic greeting
 ```
 
-## Added external properties and beans
+## Added External Properties and Beans
 
 This phase started off simple enough. I found 
 out (http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html)
@@ -239,6 +239,36 @@ Now the greetings look like this:
 ```
 bryans-mbp:micro bryan$ curl -u joe:joespassword localhost:8080/greet/any
 {"id":1,"content":"Hello, joe, you fantastic employee at Happysoft!"}
+```
+
+## Enabled SSL for Tomcat
+
+Since this system is just using basic auth, I thought it would be good to investigate how complicated
+it might be to enable HTTPS. It turns out that this too is pretty straightforward. I added a few lines
+to the application.properties bundled with jar:
+
+```
+server.port=8443
+server.ssl.key-store=file:config/keystore.jks
+server.ssl.key-store-password=changeit
+server.ssl.key-password=changeit
+```
+
+This also requires me to generate a Java Key Store (above, I've specified that it will live at
+"config/keystore.jks" on the filesystem). This can be done on any system with Java installed,
+using a tool called "keytool" from JAVA_HOME/bin. I ran the following command to generate a
+keystore and self-signed certificate:
+
+```
+keytool -genkey -keyalg RSA -alias tomcat -keystore config/keystore.jks
+```
+
+With that in place, the app starts to serve content over HTTPS instead of HTTP. For now, I tell
+cURL to ignore the errors its getting from self-signed certificates:
+
+```
+bryans-mbp:micro bryan$ curl -k -u joe:joespassword https://localhost:8443/greet/any
+{"id":4,"content":"Hello, joe, you fantastic employee at Happysoft!"}
 ```
 
 

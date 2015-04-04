@@ -186,7 +186,8 @@ auth
 
 ## Added Logging
 
-This is a pretty simple one. I found out that Spring Boot defaults to Logback for logging, and added some logging
+This is a pretty simple one. I found out that Spring Boot defaults to Logback for logging
+(http://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html), and added some logging
 to HelloController. I configured a base level for all com.btr3.demo classes to be "DEBUG" for now. When running,
 I get a message like this in the logs:
 

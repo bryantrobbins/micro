@@ -115,4 +115,72 @@ What I'd like to do next is to stand up a separate LDAP server and authenticate 
 I can also figure out how to externalize the configuration of that server
 (URL, managerDn, and managerPassword).
 
+## Accessing user details and roles
+
+This took some trial-and-error and creative Google-ing, but both of these features are actually fairly straightforward with the
+Default Spring LDAP implementation. I updated the HelloController to have two separate functions at different request
+paths: /greet/any and /greet/dev. Both of these inject the UserDetails object for the currently logged in user into
+the method as a parameter, utilizing the AuthenticationPrincipal object annotation:
+
+```
+@RequestMapping("/greet/any")
+public Greeting sayHello(@AuthenticationPrincipal UserDetails customUser) {
+    return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "employee"));
+}
+```
+
+I also updated the template to take a second argument, so that the template now reads:
+
+```
+private static final String template = "Hello, %s, you fantastic %s!";
+```
+
+Then I tried to apply a role to the /greet/dev endpoint, requiring the user to be in the "developers" LDAP role in order
+to access:
+
+```
+@Secured("ROLE_DEVELOPERS")
+@RequestMapping("/greet/dev")
+public Greeting sayHelloDev(@AuthenticationPrincipal UserDetails customUser) {
+    return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "developer"));
+}
+```
+
+I was surprised that this didn't work, because I had seen Secured used this way in several tutorials. My problem, as
+far as I understand it, is that the Secured annotation is not enabled by default in Controllers. I enabled this with
+an annotation in my WebSecurityConfig (the same class where other security details are configured) like this:
+
+```
+@Configuration
+@EnableWebMvcSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true) // Enable Secured annotation
+```
+
+Finally, now I can call the two endpoints with various users ("ben" is a developer, "joe" is not):
+
+```
+bryans-mbp:micro bryan$ curl -u ben:benspassword localhost:8080/greet/any
+{"id":2,"content":"Hello, ben, you fantastic employee!"}
+
+bryans-mbp:micro bryan$ curl -u ben:benspassword localhost:8080/greet/dev
+{"id":3,"content":"Hello, ben, you fantastic developer!"}
+
+bryans-mbp:micro bryan$ curl -u joe:joespassword localhost:8080/greet/any
+{"id":4,"content":"Hello, joe, you fantastic employee!"}
+
+bryans-mbp:micro bryan$ curl -u joe:joespassword localhost:8080/greet/dev
+{"timestamp":1428174667000,"status":403,"error":"Forbidden","exception":"org.springframework.security.access.AccessDeniedException","message":"Access is denied","path":"/greet/dev"}
+```
+
+Based on my AuthenticationConfiguration implementation in WebSecurityConfig, roles are being loaded from any "ou=groups" location
+in LDAP (see groupSearchBase):
+
+```
+								auth
+                    .ldapAuthentication()
+                    .userDnPatterns("uid={0},ou=people")
+                    .groupSearchBase("ou=groups")
+                    .contextSource()
+                    .ldif("classpath:test-server.ldif")
+```
 

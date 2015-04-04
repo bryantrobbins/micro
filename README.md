@@ -176,11 +176,20 @@ Based on my AuthenticationConfiguration implementation in WebSecurityConfig, rol
 in LDAP (see groupSearchBase):
 
 ```
-								auth
-                    .ldapAuthentication()
-                    .userDnPatterns("uid={0},ou=people")
-                    .groupSearchBase("ou=groups")
-                    .contextSource()
-                    .ldif("classpath:test-server.ldif")
+auth
+	.ldapAuthentication()
+	.userDnPatterns("uid={0},ou=people")
+	.groupSearchBase("ou=groups")
+	.contextSource()
+	.ldif("classpath:test-server.ldif")
 ```
 
+## Added Logging
+
+This is a pretty simple one. I found out that Spring Boot defaults to Logback for logging, and added some logging
+to HelloController. I configured a base level for all com.btr3.demo classes to be "DEBUG" for now. When running,
+I get a message like this in the logs:
+
+```
+2015-04-04 15:40:36.930  INFO 2286 --- [nio-8080-exec-3] c.btr3.demo.controllers.HelloController  : Replying with a generic greeting
+```

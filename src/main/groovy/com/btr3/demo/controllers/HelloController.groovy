@@ -14,8 +14,9 @@ import java.util.concurrent.atomic.AtomicLong
 @RestController
 public class HelloController {
 
+    String companyName
     private static final Logger logger = LoggerFactory.getLogger(HelloController.class)
-    private static final String template = "Hello, %s, you fantastic %s!";
+    private static final String template = "Hello, %s, you fantastic %s at %s!";
     private final AtomicLong counter = new AtomicLong();
 
     @RequestMapping("/")
@@ -25,15 +26,17 @@ public class HelloController {
 
     @RequestMapping("/greet/any")
     public Greeting sayHello(@AuthenticationPrincipal UserDetails customUser) {
-        logger.info("Replying with a generic greeting")
-        return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "employee"));
+        logger.debug("Replying with a generic greeting")
+        return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "employee",
+                companyName));
     }
 
     @Secured("ROLE_DEVELOPERS")
     @RequestMapping("/greet/dev")
     public Greeting sayHelloDev(@AuthenticationPrincipal UserDetails customUser) {
-        logger.info("Replying with a developer-specific greeting")
-        return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "developer"));
+        logger.debug("Replying with a developer-specific greeting")
+        return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "developer",
+        companyName));
     }
 
 

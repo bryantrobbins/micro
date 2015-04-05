@@ -324,3 +324,58 @@ And all is well:
 bryans-mbp:micro bryan$ groovy client.groovy 
 [content:Hello, joe, you fantastic employee at Happysoft!, id:7]
 ```
+
+## External LDAP Server and External LDAP-related Properties
+
+I wanted to see how portable the LDAP implementation(s) were in the default application. Once again, things are
+pretty configurable.
+
+First, I downloaded and installed Apache Directory Server, an open-source LDAP server implementation. I also installed
+Apache Directory Studio, which gives a point-and-click UI for manipulating server settings and LDAP entries. The schema
+checking in ApacheDS was much more strict than the embedded LDAP of Spring, so I had to make some small modifications to
+the LDIF and re-import (this was all by iterative trial-and-error).
+
+Eventually, I had my LDAP server running on localhost port 10389 (unsecured).
+
+When it came to external properties, I was a little disappointed that I couldn't figure out BeanBuilder
+configurations for LDAP properties. I settled for using the Value annotation instead, so that I could
+add these properties to my external (config/) application.properties:
+
+```
+url=ldap://localhost:10389
+users=uid={0},ou=people,dc=springframework,dc=org
+groups =ou=groups,dc=springframework,dc=org
+groupMember=member={0}
+```
+
+These require corresponding annotations in WebSecurityConfig:
+
+```
+@Configuration
+protected static class AuthenticationConfiguration extends
+        GlobalAuthenticationConfigurerAdapter {
+
+    @Value('${users}')
+    String userPattern
+
+    @Value('${groups}')
+    String groupBase
+
+    @Value('${groupMember}')
+    String groupFilter
+
+    @Value('${url}')
+    String url
+
+    @Override
+    public void init(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .ldapAuthentication()
+                .userDnPatterns(userPattern)
+                .groupSearchBase(groupBase)
+                .groupSearchFilter(groupFilter)
+                .contextSource().url(url)
+    }
+}
+```
+

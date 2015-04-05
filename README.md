@@ -278,15 +278,16 @@ for testing on my local machine. I first wrote a simple client on my local machi
 (this is client.groovy in the repo above):
 
 ```
-@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.1' )
+@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.2' )
 
 import groovyx.net.http.RESTClient
 
 def client = new RESTClient('https://localhost:8443/')
-def resp = client.get( path : 'greet/any' ) // ACME boomerang
+client.headers['Authorization'] = 'Basic '+"joe:joespassword".bytes.encodeBase64()
 
-assert resp.status == 200  // HTTP response code; 404 means not found, etc.
-println resp.getData()
+def result = client.get( path : 'greet/any' )
+assert result.status == 200
+println result.getData()
 ```
 
 Before telling my Java installation about the certificate, I get errors:

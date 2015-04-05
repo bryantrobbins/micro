@@ -271,4 +271,55 @@ bryans-mbp:micro bryan$ curl -k -u joe:joespassword https://localhost:8443/greet
 {"id":4,"content":"Hello, joe, you fantastic employee at Happysoft!"}
 ```
 
+But, to prove to myself that the certificate is actually being applied, I decided to
+export the cert from the newly generated app keystore and add it to the standard Java
+cacerts location on my machine. This will allow me to write a simple ReST client script
+for testing on my local machine. I first wrote a simple client on my local machine in Groovy
+(this is client.groovy in the repo above):
 
+```
+@Grab(group='org.codehaus.groovy.modules.http-builder', module='http-builder', version='0.7.1' )
+
+import groovyx.net.http.RESTClient
+
+def client = new RESTClient('https://localhost:8443/')
+def resp = client.get( path : 'greet/any' ) // ACME boomerang
+
+assert resp.status == 200  // HTTP response code; 404 means not found, etc.
+println resp.getData()
+```
+
+Before telling my Java installation about the certificate, I get errors:
+
+```
+bryans-mbp:micro bryan$ groovy client.groovy 
+Caught: javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
+javax.net.ssl.SSLPeerUnverifiedException: peer not authenticated
+	at org.apache.http.conn.ssl.AbstractVerifier.verify(AbstractVerifier.java:128)
+	at org.apache.http.conn.ssl.SSLSocketFactory.connectSocket(SSLSocketFactory.java:572)
+	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
+	at org.apache.http.impl.conn.ManagedClientConnectionImpl.open(ManagedClientConnectionImpl.java:294)
+	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:640)
+	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:479)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:906)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:1066)
+	at org.apache.http.impl.client.AbstractHttpClient.execute(AbstractHttpClient.java:1044)
+	at groovyx.net.http.HTTPBuilder.doRequest(HTTPBuilder.java:515)
+	at groovyx.net.http.RESTClient.get(RESTClient.java:119)
+	at groovyx.net.http.RESTClient$get.call(Unknown Source)
+	at client.run(client.groovy:8)
+```
+
+So I exported the certificate and imported to the base Java location as planned:
+
+```
+keytool -export -alias tomcat -file localhost.crt -keystore config/keystore.jks
+sudo keytool -import -trustcacerts -alias localhost -file localhost.crt -keystore $JAVA_HOME/jre/lib/security/cacerts
+```
+
+And all is well:
+
+```
+bryans-mbp:micro bryan$ groovy client.groovy 
+[content:Hello, joe, you fantastic employee at Happysoft!, id:7]
+```

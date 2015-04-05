@@ -57,3 +57,8 @@ crashlytics-build.properties
 
 # Ignore keystore
 keystore.jks
+
+# Ignore any certificates laying around
+*.cer
+*.crt
+*.pem

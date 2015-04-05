@@ -1,5 +1,6 @@
 package com.btr3.demo.security
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter
@@ -27,14 +28,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected static class AuthenticationConfiguration extends
             GlobalAuthenticationConfigurerAdapter {
 
+        @Value('${users}')
+        String userPattern
+
+        @Value('${groups}')
+        String groupBase
+
+        @Value('${groupMember}')
+        String groupFilter
+
+        @Value('${url}')
+        String url
+
         @Override
         public void init(AuthenticationManagerBuilder auth) throws Exception {
             auth
                     .ldapAuthentication()
-                    .userDnPatterns("uid={0},ou=people")
-                    .groupSearchBase("ou=groups")
-                    .contextSource()
-                    .ldif("classpath:test-server.ldif")
+                    .userDnPatterns(userPattern)
+                    .groupSearchBase(groupBase)
+                    .groupSearchFilter(groupFilter)
+                    .contextSource().url(url)
         }
     }
 }

@@ -27,6 +27,11 @@ public class HelloController {
     @RequestMapping("/greet/any")
     public Greeting sayHello(@AuthenticationPrincipal UserDetails customUser) {
         logger.debug("Replying with a generic greeting")
+        logger.debug("User has " + customUser.getAuthorities().size() + " authorities")
+        for(def role : customUser.getAuthorities()){
+            logger.debug("User has role " + role)
+        }
+
         return new Greeting(counter.incrementAndGet(), String.format(template, customUser.getUsername(), "employee",
                 companyName));
     }
